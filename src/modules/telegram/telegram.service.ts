@@ -1,12 +1,13 @@
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Telegraf } from 'telegraf';
+import { UserService } from '../user/user.service';
 
 @Injectable()
 export class TelegramService implements OnModuleInit, OnModuleDestroy {
   private bot: Telegraf;
 
-  constructor(private configService: ConfigService) {
+  constructor(private configService: ConfigService, private userService: UserService) {
     const token = this.configService.get('telegram.token');
     if (!token) {
       throw new Error('TELEGRAM_BOT_TOKEN environment variable is required');
@@ -33,6 +34,13 @@ Available commands:
 /ping - Test bot responsiveness
       `;
       ctx.reply(helpText);
+    });
+
+    this.bot.command('new', async (ctx) => {
+      console.log(ctx.from);
+      const wallet = await this.userService.createUser(ctx.from.id.toString());
+      console.log(wallet);
+      ctx.reply('hello world');
     });
 
     // // Status command
