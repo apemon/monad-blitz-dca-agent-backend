@@ -23,4 +23,10 @@ export class UserService {
     await this.userRepository.save(newUser);
     return newUser;
   }
+
+  async getUserByTelegramId(telegramId: string) {
+    return await this.userRepository.findOne({
+      where: { telegramId },
+    });
+  }
 }

@@ -2,6 +2,7 @@ import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Telegraf } from 'telegraf';
 import { UserService } from '../user/user.service';
+import { WalletService } from '../wallet/wallet.service';
 
 @Injectable()
 export class TelegramService implements OnModuleInit, OnModuleDestroy {
@@ -10,6 +11,7 @@ export class TelegramService implements OnModuleInit, OnModuleDestroy {
   constructor(
     private configService: ConfigService,
     private userService: UserService,
+    private walletService: WalletService,
   ) {
     const token = this.configService.get('telegram.token');
     if (!token) {
@@ -35,6 +37,8 @@ Available commands:
 /help - Show this help message
 /status - Check bot status
 /ping - Test bot responsiveness
+/new - Create a new wallet
+/balance - Check your wallet balance
       `;
       ctx.reply(helpText);
     });
@@ -47,6 +51,33 @@ Available commands:
       } catch (error) {
         console.error('Failed to create user:', error);
         ctx.reply('Sorry, something went wrong!');
+      }
+    });
+
+    this.bot.command('balance', async (ctx) => {
+      try {
+        const telegramId = ctx.from.id.toString();
+        const user = await this.userService.getUserByTelegramId(telegramId);
+
+        if (!user) {
+          ctx.reply("You don't have a wallet yet. Use /new to create one.");
+          return;
+        }
+
+        const balance = await this.walletService.getWalletBalance(
+          user.walletAddress,
+        );
+        ctx.reply(
+          `💰 Wallet Balance\n` +
+            `Address: ${balance.address}\n` +
+            `NAD: ${balance.monadBalance}\n` +
+            `USDC: ${balance.usdcBalance}`,
+        );
+      } catch (error) {
+        console.error('Failed to get wallet balance:', error);
+        ctx.reply(
+          'Sorry, failed to get wallet balance. Please try again later.',
+        );
       }
     });
 
