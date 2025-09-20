@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { Telegraf } from 'telegraf';
 import { UserService } from '../user/user.service';
 import { WalletService } from '../wallet/wallet.service';
-import { formatUnits } from 'viem';
+import { ethers } from 'ethers';
 
 @Injectable()
 export class TelegramService implements OnModuleInit, OnModuleDestroy {
@@ -68,8 +68,8 @@ Available commands:
         ctx.reply(
           `💰 Wallet Balance\n` +
             `Address: ${user.walletAddress}\n` +
-            `NAD: ${formatUnits(BigInt(user.monadBalance), 18)}\n` +
-            `USDC: ${formatUnits(BigInt(user.usdcBalance), 6)}`,
+            `NAD: ${ethers.utils.formatEther(user.monadBalance)}\n` +
+            `USDC: ${ethers.utils.formatUnits(user.usdcBalance, 6)}`,
         );
       } catch (error) {
         console.error('Failed to get wallet balance:', error);
