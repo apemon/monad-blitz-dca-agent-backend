@@ -8,12 +8,14 @@ import { WalletModule } from './modules/wallet/wallet.module';
 import { ConfigModule } from '@nestjs/config';
 import telegramConfig from './config/telegram.config';
 import walletConfig from './config/wallet.config';
+import { KuruModule } from './modules/kuru/kuru.module';
+import kuruConfig from './config/kuru.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [telegramConfig, walletConfig],
+      load: [telegramConfig, walletConfig, kuruConfig],
     }),
     TypeOrmModule.forRoot({
       type: 'sqlite',
@@ -24,6 +26,7 @@ import walletConfig from './config/wallet.config';
     TelegramModule,
     UserModule,
     WalletModule,
+    KuruModule,
   ],
   controllers: [AppController],
   providers: [AppService],

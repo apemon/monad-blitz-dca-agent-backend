@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
 import { createPublicClient, formatUnits, http, parseEventLogs } from 'viem';
 import { ConfigService } from '@nestjs/config';
-import { erc20Abi } from './abi/erc20.abi';
+import { erc20Abi } from '../../abi/erc20.abi';
 
 @Injectable()
 export class WalletService {
