@@ -33,6 +33,12 @@ export class User {
   @Exclude() // Exclude from serialization for security
   privateKey: string;
 
+  @Column({ default: '0' })
+  usdcBalance: string;
+
+  @Column({ default: '0' })
+  monadBalance: string;
+
   @CreateDateColumn()
   createdAt: Date;
 

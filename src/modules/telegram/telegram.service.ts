@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { Telegraf } from 'telegraf';
 import { UserService } from '../user/user.service';
 import { WalletService } from '../wallet/wallet.service';
+import { formatUnits } from 'viem';
 
 @Injectable()
 export class TelegramService implements OnModuleInit, OnModuleDestroy {
@@ -64,20 +65,34 @@ Available commands:
           return;
         }
 
-        const balance = await this.walletService.getWalletBalance(
-          user.walletAddress,
-        );
         ctx.reply(
           `💰 Wallet Balance\n` +
-            `Address: ${balance.address}\n` +
-            `NAD: ${balance.monadBalance}\n` +
-            `USDC: ${balance.usdcBalance}`,
+            `Address: ${user.walletAddress}\n` +
+            `NAD: ${formatUnits(BigInt(user.monadBalance), 18)}\n` +
+            `USDC: ${formatUnits(BigInt(user.usdcBalance), 6)}`,
         );
       } catch (error) {
         console.error('Failed to get wallet balance:', error);
         ctx.reply(
           'Sorry, failed to get wallet balance. Please try again later.',
         );
+      }
+    });
+
+    this.bot.command('deposit', async (ctx) => {
+      try {
+        const telegramId = ctx.from.id.toString();
+        const user = await this.userService.getUserByTelegramId(telegramId);
+        if (!user) {
+          ctx.reply("You don't have a wallet yet. Use /new to create one.");
+          return;
+        }
+        const txhash = ctx.message.text.split(' ')[1];
+        await this.userService.deposit(telegramId, txhash);
+        ctx.reply('Deposit successful!');
+      } catch (error) {
+        console.error('Failed to deposit:', error);
+        ctx.reply('Sorry, failed to deposit. Please try again later.');
       }
     });
 

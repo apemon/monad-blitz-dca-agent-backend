@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
-import { createPublicClient, formatUnits, http } from 'viem';
+import { createPublicClient, formatUnits, http, parseEventLogs } from 'viem';
 import { ConfigService } from '@nestjs/config';
 import { erc20Abi } from './abi/erc20.abi';
 
@@ -50,6 +50,39 @@ export class WalletService {
       };
     } catch (error) {
       throw new Error(`Failed to get wallet balance: ${error.message}`);
+    }
+  }
+
+  async getUsdcDepositAmount(walletAddress: string, txhash: string) {
+    try {
+      // Get transaction receipt from txhash
+      const receipt = await this.client.getTransactionReceipt({
+        hash: txhash as `0x${string}`,
+      });
+
+      if (!receipt || receipt.status !== 'success') {
+        throw new Error('Transaction failed or not found');
+      }
+
+      // Parse event logs to find USDC Transfer events
+      const transferLogs = parseEventLogs({
+        abi: erc20Abi,
+        logs: receipt.logs,
+        eventName: 'Transfer',
+      });
+
+      console.log(transferLogs);
+      const depositTransfer: any = transferLogs.find(
+        (log: any) =>
+          log.args.to?.toLowerCase() === walletAddress.toLowerCase() &&
+          log.address.toLowerCase() === this.usdcAddress.toLowerCase(),
+      );
+      const usdcDepositAmount = depositTransfer.args.value;
+      return {
+        usdcDepositAmount,
+      };
+    } catch (error) {
+      throw new Error(`Failed to process deposit: ${error.message}`);
     }
   }
 }
