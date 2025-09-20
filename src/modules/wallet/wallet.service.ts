@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
+import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
 
 @Injectable()
 export class WalletService {

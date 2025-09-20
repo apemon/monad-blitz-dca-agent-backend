@@ -13,7 +13,8 @@ export class UserService {
   ) {}
 
   async createUser(telegramId: string) {
-    const {privateKey, walletAddress} = await this.walletService.createWallet();
+    const { privateKey, walletAddress } =
+      await this.walletService.createWallet();
     const newUser = this.userRepository.create({
       telegramId,
       privateKey,

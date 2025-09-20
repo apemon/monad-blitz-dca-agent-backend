@@ -7,7 +7,10 @@ import { UserService } from '../user/user.service';
 export class TelegramService implements OnModuleInit, OnModuleDestroy {
   private bot: Telegraf;
 
-  constructor(private configService: ConfigService, private userService: UserService) {
+  constructor(
+    private configService: ConfigService,
+    private userService: UserService,
+  ) {
     const token = this.configService.get('telegram.token');
     if (!token) {
       throw new Error('TELEGRAM_BOT_TOKEN environment variable is required');
@@ -37,21 +40,15 @@ Available commands:
     });
 
     this.bot.command('new', async (ctx) => {
-      console.log(ctx.from);
-      const wallet = await this.userService.createUser(ctx.from.id.toString());
-      console.log(wallet);
-      ctx.reply('hello world');
+      try {
+        const user = await this.userService.createUser(ctx.from.id.toString());
+        console.log(user);
+        ctx.reply(`new wallet created: ${user.walletAddress}.`);
+      } catch (error) {
+        console.error('Failed to create user:', error);
+        ctx.reply('Sorry, something went wrong!');
+      }
     });
-
-    // // Status command
-    // this.bot.command('status', (ctx) => {
-    //   ctx.reply('Bot is running and ready! 🚀');
-    // });
-
-    // // Ping command
-    // this.bot.command('ping', (ctx) => {
-    //   ctx.reply('Pong! 🏓');
-    // });
 
     // // Handle text messages
     // this.bot.on('text', (ctx) => {
