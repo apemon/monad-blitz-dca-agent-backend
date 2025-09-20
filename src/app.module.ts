@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { TelegramModule } from './modules/telegram.module';
+import { TelegramModule } from './modules/telegram/telegram.module';
 import { ConfigModule } from '@nestjs/config';
 import telegramConfig from './config/telegram.config';
 
